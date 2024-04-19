@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "../ui/textarea";
 import ImageUpload from "../custom-ui/ImageUpload";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { FC, useState } from "react";
 import toast from "react-hot-toast";
 
 const formSchema = z.object({
@@ -27,16 +27,22 @@ const formSchema = z.object({
   image: z.string(),
 });
 
-const CollectionForm = () => {
+interface CollectionFormProps {
+  initialData?: CollectionType | null;
+}
+
+const CollectionForm: FC<CollectionFormProps> = ({ initialData }) => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      title: "",
-      description: "",
-      image: "",
-    },
+    defaultValues: initialData
+      ? initialData
+      : {
+          title: "",
+          description: "",
+          image: "",
+        },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
@@ -108,12 +114,16 @@ const CollectionForm = () => {
             )}
           />
           <div className="flex gap-4">
-            <Button type="submit" className="bg-blue-1 text-white">
+            <Button
+              type="submit"
+              className="bg-blue-1 text-white"
+              onClick={() => router.push("/collections")}
+            >
               Submit
             </Button>
             <Button
               type="button"
-              className="bg-blue-1 text-white"
+              className="bg-red-1 text-white"
               onClick={() => router.push("/collections")}
             >
               Discard
