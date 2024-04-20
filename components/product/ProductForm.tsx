@@ -1,0 +1,265 @@
+"use client";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+
+import { Separator } from "../ui/separator";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "../ui/textarea";
+import ImageUpload from "../custom-ui/ImageUpload";
+import { useRouter } from "next/navigation";
+import { FC, KeyboardEvent, useState } from "react";
+import toast from "react-hot-toast";
+import Delete from "../custom-ui/Delete";
+import MultiText from "../custom-ui/MultiText";
+
+const formSchema = z.object({
+  title: z.string().min(2).max(20),
+  description: z.string().min(2).max(500).trim(),
+  media: z.array(z.string()),
+  category: z.string(),
+  collections: z.array(z.string()),
+  tags: z.array(z.string()),
+  sizes: z.array(z.string()),
+  colors: z.array(z.string()),
+  price: z.coerce.number().min(0.1),
+  expense: z.coerce.number().min(0.1),
+});
+
+interface ProductFormProps {
+  initialData?: ProductType | null;
+}
+
+const ProductForm: FC<ProductFormProps> = ({ initialData }) => {
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: initialData
+      ? initialData
+      : {
+          title: "",
+          description: "",
+          media: [],
+          category: "",
+          collections: [],
+          colors: [],
+          sizes: [],
+          tags: [],
+          expense: 0.1,
+          price: 0.1,
+        },
+  });
+
+  const handleKeyPress = (
+    e: KeyboardEvent<HTMLInputElement> | KeyboardEvent<HTMLTextAreaElement>
+  ) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+    }
+  };
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      setLoading(true);
+      const url = initialData
+        ? `/api/products/${initialData._id}`
+        : "/api/products";
+
+      const res = await fetch(url, {
+        method: "POST",
+        body: JSON.stringify(values),
+      });
+      if (res.ok) {
+        setLoading(false);
+        toast.success(`Products ${initialData ? "updated" : "created"}`);
+        window.location.href = "/products";
+        router.push("/products");
+      }
+    } catch (error) {
+      setLoading(false);
+      toast.error("Something went wrong. Try again!");
+      console.log("Products-POST", error);
+    }
+  };
+  return (
+    <div className="p-10">
+      {initialData ? (
+        <div className="flex justify-between items-center">
+          <p className="text-heading2-bold">Edit Product</p>
+          <Delete id={initialData._id} />
+        </div>
+      ) : (
+        <p className="text-heading2-bold">Create Product</p>
+      )}
+      <Separator className="mt-4 mb-7 bg-grey-1" />
+
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <FormField
+            control={form.control}
+            name="title"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Title</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Title"
+                    {...field}
+                    onKeyDown={handleKeyPress}
+                  />
+                </FormControl>
+                <FormMessage className="text-red-1" />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Description</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="Description"
+                    {...field}
+                    rows={5}
+                    onKeyDown={handleKeyPress}
+                  />
+                </FormControl>
+                <FormMessage className="text-red-1" />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="media"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Image</FormLabel>
+                <FormControl>
+                  <ImageUpload
+                    value={field.value}
+                    onChange={(url) => field.onChange([...field.value, url])}
+                    onRemove={(url) =>
+                      field.onChange([
+                        ...field.value.filter((image) => image !== url),
+                      ])
+                    }
+                  />
+                </FormControl>
+                <FormMessage className="text-red-1" />
+              </FormItem>
+            )}
+          />
+          <div className="md:grid grid-cols-3 gap-8">
+            <FormField
+              control={form.control}
+              name="price"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Price ($)</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Price"
+                      type="number"
+                      {...field}
+                      onKeyDown={handleKeyPress}
+                    />
+                  </FormControl>
+                  <FormMessage className="text-red-1" />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="expense"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Expense ($)</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      placeholder="Expense"
+                      {...field}
+                      onKeyDown={handleKeyPress}
+                    />
+                  </FormControl>
+                  <FormMessage className="text-red-1" />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="category"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Category</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Category"
+                      {...field}
+                      onKeyDown={handleKeyPress}
+                    />
+                  </FormControl>
+                  <FormMessage className="text-red-1" />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="tags"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tags</FormLabel>
+                  <FormControl>
+                    <MultiText
+                      placeholder="Tags"
+                      value={field.value}
+                      onChange={(tag) => field.onChange([...field.value, tag])}
+                      onRemove={(tagToRemove) =>
+                        field.onChange([
+                          ...field.value.filter((tag) => tag !== tagToRemove),
+                        ])
+                      }
+                    />
+                  </FormControl>
+                  <FormMessage className="text-red-1" />
+                </FormItem>
+              )}
+            />
+          </div>
+          <div className="flex gap-4">
+            <Button
+              type="submit"
+              className="bg-blue-1 text-white"
+              onClick={() => router.push("/collections")}
+            >
+              Submit
+            </Button>
+            <Button
+              type="button"
+              className="bg-red-1 text-white"
+              onClick={() => router.push("/collections")}
+            >
+              Discard
+            </Button>
+          </div>
+        </form>
+      </Form>
+    </div>
+  );
+};
+
+export default ProductForm;
