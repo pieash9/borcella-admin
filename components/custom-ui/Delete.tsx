@@ -26,7 +26,7 @@ const Delete: FC<DeleteProps> = ({ id }) => {
   const onDelete = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`api/collections/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/collections/${id}`, { method: "DELETE" });
 
       if (res.ok) {
         setLoading(false);

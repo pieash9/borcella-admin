@@ -18,8 +18,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "../ui/textarea";
 import ImageUpload from "../custom-ui/ImageUpload";
 import { useRouter } from "next/navigation";
-import { FC, useState } from "react";
+import { FC, KeyboardEvent, useState } from "react";
 import toast from "react-hot-toast";
+import Delete from "../custom-ui/Delete";
 
 const formSchema = z.object({
   title: z.string().min(2).max(20),
@@ -34,6 +35,7 @@ interface CollectionFormProps {
 const CollectionForm: FC<CollectionFormProps> = ({ initialData }) => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData
@@ -45,16 +47,29 @@ const CollectionForm: FC<CollectionFormProps> = ({ initialData }) => {
         },
   });
 
+  const handleKeyPress = (
+    e: KeyboardEvent<HTMLInputElement> | KeyboardEvent<HTMLTextAreaElement>
+  ) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+    }
+  };
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       setLoading(true);
-      const res = await fetch("/api/collections", {
+      const url = initialData
+        ? `/api/collections/${initialData._id}`
+        : "/api/collections";
+
+      const res = await fetch(url, {
         method: "POST",
         body: JSON.stringify(values),
       });
       if (res.ok) {
         setLoading(false);
-        toast.success("Collection created");
+        toast.success(`Collection ${initialData ? "updated" : "created"}`);
+        window.location.href = "/collections";
         router.push("/collections");
       }
     } catch (error) {
@@ -65,7 +80,14 @@ const CollectionForm: FC<CollectionFormProps> = ({ initialData }) => {
   };
   return (
     <div className="p-10">
-      <p className="text-heading2-bold">Create Collection</p>
+      {initialData ? (
+        <div className="flex justify-between items-center">
+          <p className="text-heading2-bold">Edit Collection</p>
+          <Delete id={initialData._id} />
+        </div>
+      ) : (
+        <p className="text-heading2-bold">Create Collection</p>
+      )}
       <Separator className="mt-4 mb-7 bg-grey-1" />
 
       <Form {...form}>
@@ -77,7 +99,11 @@ const CollectionForm: FC<CollectionFormProps> = ({ initialData }) => {
               <FormItem>
                 <FormLabel>Title</FormLabel>
                 <FormControl>
-                  <Input placeholder="Title" {...field} />
+                  <Input
+                    placeholder="Title"
+                    {...field}
+                    onKeyDown={handleKeyPress}
+                  />
                 </FormControl>
                 <FormMessage className="text-red-1" />
               </FormItem>
@@ -90,7 +116,12 @@ const CollectionForm: FC<CollectionFormProps> = ({ initialData }) => {
               <FormItem>
                 <FormLabel>Description</FormLabel>
                 <FormControl>
-                  <Textarea placeholder="Description" {...field} rows={5} />
+                  <Textarea
+                    placeholder="Description"
+                    {...field}
+                    rows={5}
+                    onKeyDown={handleKeyPress}
+                  />
                 </FormControl>
                 <FormMessage className="text-red-1" />
               </FormItem>
