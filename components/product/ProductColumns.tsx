@@ -10,7 +10,7 @@ export const productColumns: ColumnDef<ProductType>[] = [
     header: "Title",
     cell: ({ row }) => (
       <Link
-        href={`/product/${row.original._id}`}
+        href={`/products/${row.original._id}`}
         className="hover:text-red-1 hover:underline"
       >
         {row.original.title}

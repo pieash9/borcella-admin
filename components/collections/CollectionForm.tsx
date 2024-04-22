@@ -83,7 +83,7 @@ const CollectionForm: FC<CollectionFormProps> = ({ initialData }) => {
       {initialData ? (
         <div className="flex justify-between items-center">
           <p className="text-heading2-bold">Edit Collection</p>
-          <Delete id={initialData._id} />
+          <Delete item="collection" id={initialData._id} />
         </div>
       ) : (
         <p className="text-heading2-bold">Create Collection</p>

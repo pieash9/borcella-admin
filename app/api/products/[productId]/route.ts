@@ -1,34 +1,38 @@
 import Collection from "@/lib/models/Collection";
+import Product from "@/lib/models/Product";
 import { connectToDB } from "@/lib/mongoDB";
 import { auth } from "@clerk/nextjs";
 import { NextRequest, NextResponse } from "next/server";
 
 export const GET = async (
   req: NextRequest,
-  { params }: { params: { collectionId: string } },
+  { params }: { params: { productId: string } },
   res: NextResponse
 ) => {
   try {
     await connectToDB();
-    const collection = await Collection.findById(params.collectionId);
+    const product = await Product.findById(params.productId).populate({
+      path: "collections",
+      model: Collection,
+    });
 
-    if (!collection) {
+    if (!product) {
       return new NextResponse(
-        JSON.stringify({ message: "Internal server error" }),
+        JSON.stringify({ message: "Product not found" }),
         { status: 500 }
       );
     }
 
-    return NextResponse.json(collection, { status: 200 });
+    return NextResponse.json(product, { status: 200 });
   } catch (error) {
-    console.log("[Collections-Delete]", error);
+    console.log("[product-GET]", error);
     return new NextResponse("Internal server error", { status: 500 });
   }
 };
 
 export const POST = async (
   req: NextRequest,
-  { params }: { params: { collectionId: string } },
+  { params }: { params: { productId: string } },
   res: NextResponse
 ) => {
   try {
@@ -40,10 +44,10 @@ export const POST = async (
 
     await connectToDB();
 
-    let collection = await Collection.findById(params.collectionId);
+    let product = await Product.findById(params.productId);
 
-    if (!collection) {
-      return new NextResponse("Collection not found", { status: 404 });
+    if (!product) {
+      return new NextResponse("product not found", { status: 404 });
     }
 
     const { title, image, description } = await req.json();
@@ -52,24 +56,24 @@ export const POST = async (
       return new NextResponse("Title and image are required", { status: 500 });
     }
 
-    collection = await Collection.findByIdAndUpdate(
-      params.collectionId,
+    product = await Product.findByIdAndUpdate(
+      params.productId,
       { title, image, description },
       { new: true }
     );
 
-    await collection.save();
+    await product.save();
 
-    return NextResponse.json(collection, { status: 200 });
+    return NextResponse.json(product, { status: 200 });
   } catch (error) {
-    console.log("[Collections-Update]", error);
+    console.log("[product-Update]", error);
     return new NextResponse("Internal server error", { status: 500 });
   }
 };
 
 export const DELETE = async (
   req: NextRequest,
-  { params }: { params: { collectionId: string } },
+  { params }: { params: { productId: string } },
   res: NextResponse
 ) => {
   try {
@@ -81,11 +85,11 @@ export const DELETE = async (
 
     await connectToDB();
 
-    await Collection.findByIdAndDelete(params.collectionId);
+    await Product.findByIdAndDelete(params.productId);
 
-    return new NextResponse("Collection is deleted", { status: 200 });
+    return new NextResponse("product is deleted", { status: 200 });
   } catch (error) {
-    console.log("[Collections-Delete]", error);
+    console.log("[products-Delete]", error);
     return new NextResponse("Internal server error", { status: 500 });
   }
 };
