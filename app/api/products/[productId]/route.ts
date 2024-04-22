@@ -127,16 +127,34 @@ export const DELETE = async (
 ) => {
   try {
     const { userId } = auth();
-
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-
     await connectToDB();
 
-    await Product.findByIdAndDelete(params.productId);
+    const product = await Product.findById(params.productId);
 
-    return new NextResponse("product is deleted", { status: 200 });
+    if (!product) {
+      return new NextResponse(
+        JSON.stringify({ message: "Product not found" }),
+        { status: 404 }
+      );
+    }
+
+    await Product.findByIdAndDelete(product._id);
+
+    // Update collections
+    await Promise.all(
+      product.collections.map((collectionId: string) =>
+        Collection.findByIdAndUpdate(collectionId, {
+          $pull: { products: product._id },
+        })
+      )
+    );
+
+    return new NextResponse(JSON.stringify({ message: "Product deleted" }), {
+      status: 200,
+    });
   } catch (error) {
     console.log("[products-Delete]", error);
     return new NextResponse("Internal server error", { status: 500 });
