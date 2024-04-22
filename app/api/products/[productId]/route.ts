@@ -44,27 +44,76 @@ export const POST = async (
 
     await connectToDB();
 
-    let product = await Product.findById(params.productId);
+    const product = await Product.findById(params.productId);
 
     if (!product) {
       return new NextResponse("product not found", { status: 404 });
     }
 
-    const { title, image, description } = await req.json();
+    const {
+      title,
+      description,
+      media,
+      category,
+      collections,
+      tags,
+      sizes,
+      colors,
+      price,
+      expense,
+    } = await req.json();
 
-    if (!title || !image) {
-      return new NextResponse("Title and image are required", { status: 500 });
+    if (!title || !description || !media || !category || !price || !expense) {
+      return new NextResponse("Not enough data to create a new product", {
+        status: 400,
+      });
     }
 
-    product = await Product.findByIdAndUpdate(
-      params.productId,
-      { title, image, description },
-      { new: true }
+    const addedCollections = collections.filter(
+      (collectionId: string) => !product.collections.includes(collectionId)
+    );
+    // included in new data, but not included in the previous data
+    const removeCollections = product.collections.filter(
+      (collectionId: string) => !collections.includes(collectionId)
     );
 
-    await product.save();
+    // Update collections
+    await Promise.all([
+      // Update added collections with this product
+      ...addedCollections.map((collectionId: string) =>
+        Collection.findByIdAndUpdate(collectionId, {
+          $push: { products: product._id },
+        })
+      ),
+      // Update removed collections without this product
+      ...removeCollections.map((collectionId: string) =>
+        Collection.findByIdAndUpdate(collectionId, {
+          $pull: { products: product._id },
+        })
+      ),
+    ]);
 
-    return NextResponse.json(product, { status: 200 });
+    // Update product
+    const updatedProduct = await Product.findByIdAndUpdate(
+      product._id,
+      {
+        title,
+        description,
+        media,
+        category,
+        collections,
+        tags,
+        sizes,
+        colors,
+        price,
+        expense,
+      },
+      { new: true }
+    ).populate({ path: "collections", model: Collection });
+
+    await updatedProduct.save();
+
+    return NextResponse.json(updatedProduct, { status: 200 });
   } catch (error) {
     console.log("[product-Update]", error);
     return new NextResponse("Internal server error", { status: 500 });
