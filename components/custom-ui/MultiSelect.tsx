@@ -2,8 +2,6 @@
 
 import {
   Command,
-  CommandDialog,
-  CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
@@ -30,7 +28,7 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
 }) => {
   const [inputValue, setInputValue] = useState("");
   const [open, setOpen] = useState(false);
-  console.log(value);
+
   let selected: CollectionType[];
 
   if (value.length === 0) {
@@ -73,7 +71,7 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
       <div className="relative mt-2">
         {open && (
           <CommandList>
-            <CommandGroup className="absolute w-full top-0 overflow-auto border rounded-md shadow-md">
+            <CommandGroup className="absolute z-20 w-full top-0 overflow-auto border rounded-md shadow-md">
               {selectables.map((collection) => (
                 <CommandItem
                   key={collection._id}

@@ -3,17 +3,16 @@
 import { FC, useState } from "react";
 import { Input } from "../ui/input";
 import { Badge } from "../ui/badge";
-import { Button } from "../ui/button";
 import { X } from "lucide-react";
 
-interface MultiTagProps {
+interface MultiTextProps {
   placeholder: string;
   value: string[];
   onChange: (value: string) => void;
   onRemove: (value: string) => void;
 }
 
-const MultiText: FC<MultiTagProps> = ({
+const MultiText: FC<MultiTextProps> = ({
   value,
   placeholder,
   onChange,
@@ -21,7 +20,7 @@ const MultiText: FC<MultiTagProps> = ({
 }) => {
   const [inputValue, setInputValue] = useState("");
 
-  const addTag = (item: string) => {
+  const addValue = (item: string) => {
     onChange(item);
     setInputValue("");
   };
@@ -34,21 +33,20 @@ const MultiText: FC<MultiTagProps> = ({
         onKeyDown={(e) => {
           if (e.key === "Enter") {
             e.preventDefault();
-            addTag(inputValue);
+            addValue(inputValue);
           }
         }}
       />
       <div className="flex flex-wrap gap-1 mt-4">
-        {value.map((tag, i) => (
+        {value.map((item, i) => (
           <Badge key={i} className="bg-grey-1 text-white">
-            {tag}
-            <Button
-              className="ml-2 rounded-full outline-none hover:bg-red-1 "
-              onClick={() => onRemove(tag)}
-              size={"sm"}
+            {item}
+            <button
+              className="ml-1 rounded-full outline-none hover:bg-red-1 "
+              onClick={() => onRemove(item)}
             >
-              <X className="size-3" />
-            </Button>
+              <X className="size-3.5 m-1" />
+            </button>
           </Badge>
         ))}
       </div>

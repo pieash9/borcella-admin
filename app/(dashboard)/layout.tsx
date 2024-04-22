@@ -21,7 +21,7 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en">
-        <body className={inter.className}>
+        <body suppressHydrationWarning={true} className={inter.className}>
           <ToasterProvider />
           <div className="flex max-lg:flex-col text-grey-1">
             <LeftSidebar />
