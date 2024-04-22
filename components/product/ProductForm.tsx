@@ -348,7 +348,7 @@ const ProductForm: FC<ProductFormProps> = ({ initialData }) => {
             <Button
               type="button"
               className="bg-red-1 text-white"
-              onClick={() => router.push("/collections")}
+              onClick={() => router.push("/products")}
             >
               Discard
             </Button>

@@ -4,7 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import Delete from "../custom-ui/Delete";
 import Link from "next/link";
 
-export const columns: ColumnDef<CollectionType>[] = [
+export const collectionColumns: ColumnDef<CollectionType>[] = [
   {
     accessorKey: "title",
     header: "Title",
@@ -24,6 +24,6 @@ export const columns: ColumnDef<CollectionType>[] = [
   },
   {
     id: "action",
-    cell: ({ row }) => <Delete id={row.original._id} />,
+    cell: ({ row }) => <Delete item="collection" id={row.original._id} />,
   },
 ];

@@ -1,3 +1,4 @@
+import Collection from "@/lib/modles/Collection";
 import Product from "@/lib/modles/Product";
 import { connectToDB } from "@/lib/mongoDB";
 import { auth } from "@clerk/nextjs";
@@ -48,6 +49,20 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     return NextResponse.json(newProduct, { status: 200 });
   } catch (error) {
     console.log("[Product-POST]", error);
+    return new NextResponse("Internal server error", { status: 500 });
+  }
+};
+
+export const GET = async (req: NextRequest, res: NextResponse) => {
+  try {
+    await connectToDB();
+    const products = await Product.find()
+      .sort({ createdAt: "desc" })
+      .populate({ path: "collections", model: Collection });
+
+    return NextResponse.json(products, { status: 200 });
+  } catch (error) {
+    console.log("[products_GET]", error);
     return new NextResponse("Internal server error", { status: 500 });
   }
 };
