@@ -21,6 +21,7 @@ const ImageUpload: FC<ImageUploadProps> = ({ value, onChange, onRemove }) => {
           <div key={i} className="relative w-[200px] h-[200px]">
             <div className="absolute top-0 right-0 z-10 ">
               <Button
+                type="button"
                 className="bg-red-1 text-white"
                 onClick={() => onRemove(url)}
                 size="sm"
@@ -40,7 +41,11 @@ const ImageUpload: FC<ImageUploadProps> = ({ value, onChange, onRemove }) => {
       <CldUploadWidget uploadPreset="mzzgxh4m" onUpload={onUpload}>
         {({ open }) => {
           return (
-            <Button className="bg-grey-1 text-white" onClick={() => open()}>
+            <Button
+              type="button"
+              className="bg-grey-1 text-white"
+              onClick={() => open()}
+            >
               <Plus className="size-4 mr-4" /> Upload Image
             </Button>
           );
