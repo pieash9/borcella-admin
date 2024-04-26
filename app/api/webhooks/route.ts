@@ -1,14 +1,13 @@
 import Customer from "@/lib/models/Customer";
 import Order from "@/lib/models/Order";
 import { connectToDB } from "@/lib/mongoDB";
-import { stripe } from "@/lib/stripe";
 import { NextRequest, NextResponse } from "next/server";
-import Stripe from "stripe";
+import { stripe } from "@/lib/stripe";
 
 export const POST = async (req: NextRequest) => {
   try {
     const rawBody = await req.text();
-    const signature = await req.headers.get("Stripe-Signature")!;
+    const signature = req.headers.get("Stripe-Signature") as string;
 
     const event = stripe.webhooks.constructEvent(
       rawBody,
@@ -18,21 +17,19 @@ export const POST = async (req: NextRequest) => {
 
     if (event.type === "checkout.session.completed") {
       const session = event.data.object;
-      console.log("[webhook_post]", session);
 
       const customerInfo = {
-        clerkId: session.client_reference_id,
-        name: session.customer_details?.name,
-        email: session.customer_details?.email,
+        clerkId: session?.client_reference_id,
+        name: session?.customer_details?.name,
+        email: session?.customer_details?.email,
       };
 
       const shippingAddress = {
-        streetNumber: session.customer_details?.address?.line1,
-        streetName: session.customer_details?.address?.line2,
-        city: session.customer_details?.address?.city,
-        state: session.customer_details?.address?.state,
-        postCode: session.customer_details?.address?.postal_code,
-        country: session.customer_details?.address?.country,
+        street: session?.shipping_details?.address?.line1,
+        city: session?.shipping_details?.address?.city,
+        state: session?.shipping_details?.address?.state,
+        postalCode: session?.shipping_details?.address?.postal_code,
+        country: session?.shipping_details?.address?.country,
       };
 
       const retrieveSession = await stripe.checkout.sessions.retrieve(
@@ -57,6 +54,7 @@ export const POST = async (req: NextRequest) => {
         customerClerkId: customerInfo.clerkId,
         products: orderItems,
         shippingAddress,
+        shippingRate: session?.shipping_cost?.shipping_rate,
         totalAmount: session.amount_total ? session.amount_total / 100 : 0,
       });
 
@@ -72,12 +70,13 @@ export const POST = async (req: NextRequest) => {
           orders: [newOrder._id],
         });
       }
-      customer.save();
+
+      await customer.save();
     }
 
     return new NextResponse("Order created", { status: 200 });
-  } catch (error) {
-    console.log("[webhooks_POST]", error);
+  } catch (err) {
+    console.log("[webhooks_POST]", err);
     return new NextResponse("Failed to create the order", { status: 500 });
   }
 };

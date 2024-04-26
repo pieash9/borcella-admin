@@ -15,13 +15,13 @@ const orderSchema = new Schema(
       },
     ],
     shippingAddress: {
-      streetNumber: String,
-      streetName: String,
+      street: String,
       city: String,
       state: String,
       postCode: String,
       country: String,
     },
+    shippingRate: String,
     totalAmount: Number,
   },
   { timestamps: true }
