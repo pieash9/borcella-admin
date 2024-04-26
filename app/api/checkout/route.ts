@@ -1,9 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import Stripe from "stripe";
-
-export const stripe = new Stripe(process.env.NEXT_PUBLIC_STRIPE_SECRET_KEY!, {
-  typescript: true,
-});
+import { stripe } from "@/lib/stripe";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -23,11 +19,11 @@ export async function POST(req: NextRequest) {
       return new NextResponse("Not enough data to checkout", { status: 400 });
     }
 
-    const session = stripe.checkout.sessions.create({
+    const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "payment",
       shipping_address_collection: {
-        allowed_countries: ["BD", "US", "CA"],
+        allowed_countries: ["US", "CA", "BD"],
       },
       shipping_options: [
         { shipping_rate: "shr_1P9Ob7JeWcjfeLF6cHNaujyI" },
@@ -38,15 +34,15 @@ export async function POST(req: NextRequest) {
           currency: "usd",
           product_data: {
             name: cartItem.item.title,
-            metaData: {
+            metadata: {
               productId: cartItem.item._id,
               ...(cartItem.size && { size: cartItem.size }),
               ...(cartItem.color && { color: cartItem.color }),
             },
-            unit_amount: cartItem.item.price * 100,
           },
-          quantity: cartItem.quantity,
+          unit_amount: cartItem.item.price * 100,
         },
+        quantity: cartItem.quantity,
       })),
       client_reference_id: customer.clerkId,
       success_url: `${process.env.ECOMMERCE_STORE_URL}/payment_success`,
@@ -54,8 +50,8 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(session, { headers: corsHeaders });
-  } catch (error) {
-    console.log("checkout-post", error);
-    return new NextResponse("Internal server error", { status: 500 });
+  } catch (err) {
+    console.log("[checkout_POST]", err);
+    return new NextResponse("Internal Server Error", { status: 500 });
   }
 }
