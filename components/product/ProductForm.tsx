@@ -112,7 +112,6 @@ const ProductForm: FC<ProductFormProps> = ({ initialData }) => {
         setLoading(false);
         toast.success(`Products ${initialData ? "updated" : "created"}`);
         window.location.href = "/products";
-        router.push("/products");
       } else {
         toast.error(`You don't have permission`);
       }
@@ -351,11 +350,7 @@ const ProductForm: FC<ProductFormProps> = ({ initialData }) => {
             />
           </div>
           <div className="flex gap-4">
-            <Button
-              type="submit"
-              className="bg-blue-1 text-white"
-              onClick={() => router.push("/collections")}
-            >
+            <Button type="submit" className="bg-blue-1 text-white">
               Submit
             </Button>
             <Button
