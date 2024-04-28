@@ -1,3 +1,4 @@
+import Admin from "@/lib/models/Admin";
 import Collection from "@/lib/models/Collection";
 import Product from "@/lib/models/Product";
 import { connectToDB } from "@/lib/mongoDB";
@@ -50,6 +51,13 @@ export const POST = async (
     }
 
     await connectToDB();
+
+    const admin = await Admin.find({ clerkId: userId });
+    if (admin[0]?.role !== "super_admin") {
+      return new NextResponse("You are not allowed to do this operation", {
+        status: 401,
+      });
+    }
 
     const product = await Product.findById(params.productId);
 
@@ -138,6 +146,13 @@ export const DELETE = async (
       return new NextResponse("Unauthorized", { status: 401 });
     }
     await connectToDB();
+
+    const admin = await Admin.find({ clerkId: userId });
+    if (admin[0]?.role !== "super_admin") {
+      return new NextResponse("You are not allowed to do this operation", {
+        status: 401,
+      });
+    }
 
     const product = await Product.findById(params.productId);
 

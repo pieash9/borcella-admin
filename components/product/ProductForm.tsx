@@ -113,6 +113,8 @@ const ProductForm: FC<ProductFormProps> = ({ initialData }) => {
         toast.success(`Products ${initialData ? "updated" : "created"}`);
         window.location.href = "/products";
         router.push("/products");
+      } else {
+        toast.error(`You don't have permission`);
       }
     } catch (error) {
       setLoading(false);

@@ -1,3 +1,4 @@
+import Admin from "@/lib/models/Admin";
 import Collection from "@/lib/models/Collection";
 import { connectToDB } from "@/lib/mongoDB";
 import { auth } from "@clerk/nextjs";
@@ -6,6 +7,13 @@ import { NextRequest, NextResponse } from "next/server";
 export const POST = async (req: NextRequest, res: NextResponse) => {
   try {
     const { userId } = auth();
+
+    const admin = await Admin.find({ clerkId: userId });
+    if (admin[0]?.role !== "super_admin") {
+      return new NextResponse("You are not allowed to do this operation", {
+        status: 401,
+      });
+    }
 
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
@@ -41,6 +49,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
 export const GET = async (req: NextRequest, res: NextResponse) => {
   try {
     await connectToDB();
+
     const collections = await Collection.find().sort({ createdAt: "desc" });
 
     return NextResponse.json(collections, { status: 200 });

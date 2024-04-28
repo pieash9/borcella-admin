@@ -1,3 +1,7 @@
+"use server";
+
+import { NextResponse } from "next/server";
+import Admin from "../models/Admin";
 import Customer from "../models/Customer";
 import Order from "../models/Order";
 import { connectToDB } from "../mongoDB";

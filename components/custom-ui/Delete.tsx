@@ -34,6 +34,8 @@ const Delete: FC<DeleteProps> = ({ id, item }) => {
         setLoading(false);
         window.location.href = `/${itemType}`;
         toast.success(`${item} deleted`);
+      } else {
+        toast.error(`You don't have permission`);
       }
     } catch (error) {
       setLoading(false);

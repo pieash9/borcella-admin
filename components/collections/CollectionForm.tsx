@@ -71,6 +71,8 @@ const CollectionForm: FC<CollectionFormProps> = ({ initialData }) => {
         toast.success(`Collection ${initialData ? "updated" : "created"}`);
         window.location.href = "/collections";
         router.push("/collections");
+      } else {
+        toast.error(`You don't have permission`);
       }
     } catch (error) {
       setLoading(false);
