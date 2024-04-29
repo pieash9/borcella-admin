@@ -13,7 +13,7 @@ import {
 
 const SalesChart = ({ data }: { data: any[] }) => {
   (async function () {
-    await fetch("http://localhost:3000/api/admin");
+    await fetch(`${process.env.ADMIN_DASHBOARD_URL}/api/admin`);
   })();
   return (
     <ResponsiveContainer width={"100%"} height={300}>

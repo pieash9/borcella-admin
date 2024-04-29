@@ -1,7 +1,3 @@
-"use server";
-
-import { NextResponse } from "next/server";
-import Admin from "../models/Admin";
 import Customer from "../models/Customer";
 import Order from "../models/Order";
 import { connectToDB } from "../mongoDB";
@@ -38,7 +34,8 @@ export const salesPerMonth = async () => {
     const month = new Intl.DateTimeFormat("en-US", { month: "short" }).format(
       new Date(new Date(0, i))
     );
-    return { name: month, sales: salesPerMonth[i] || 0 };
+    const sales = (salesPerMonth[i] || 0).toFixed(2);
+    return { name: month, sales };
   });
   return graphData;
 };
