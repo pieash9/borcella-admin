@@ -71,7 +71,7 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
       <div className="relative mt-2">
         {open && (
           <CommandList>
-            <CommandGroup className="absolute z-20 w-full top-0 overflow-auto border rounded-md shadow-md">
+            <CommandGroup className="absolute z-20 w-full top-0 overflow-auto border rounded-md shadow-md bg-white">
               {selectables.map((collection) => (
                 <CommandItem
                   key={collection._id}

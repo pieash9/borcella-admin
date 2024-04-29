@@ -23,9 +23,13 @@ import toast from "react-hot-toast";
 import Delete from "../custom-ui/Delete";
 
 const formSchema = z.object({
-  title: z.string().min(2).max(20),
-  description: z.string().min(2).max(500).trim(),
-  image: z.string(),
+  title: z.string({ required_error: "Title is required" }).min(2).max(20),
+  description: z
+    .string({ required_error: "Description is required" })
+    .min(2)
+    .max(500)
+    .trim(),
+  image: z.string({ required_error: "Image is required" }),
 });
 
 interface CollectionFormProps {
@@ -72,6 +76,7 @@ const CollectionForm: FC<CollectionFormProps> = ({ initialData }) => {
         window.location.href = "/collections";
         router.push("/collections");
       } else {
+        setLoading(false);
         toast.error(`You don't have permission`);
       }
     } catch (error) {

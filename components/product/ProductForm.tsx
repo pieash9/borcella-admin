@@ -26,16 +26,20 @@ import MultiSelect from "../custom-ui/MultiSelect";
 import Loader from "../custom-ui/Loader";
 
 const formSchema = z.object({
-  title: z.string().min(2).max(40),
-  description: z.string().min(2).max(500).trim(),
-  media: z.array(z.string()),
-  category: z.string(),
-  collections: z.array(z.string()),
-  tags: z.array(z.string()),
+  title: z.string({ required_error: "Title is required" }).min(2).max(60),
+  description: z
+    .string({ required_error: "Description is required" })
+    .min(2)
+    .max(500)
+    .trim(),
+  media: z.array(z.string({ required_error: "Media is required" })),
+  category: z.string({ required_error: "Category is required" }),
+  collections: z.array(z.string({ required_error: "Collections is required" })),
+  tags: z.array(z.string({ required_error: "Tags is required" })),
   sizes: z.array(z.string()),
   colors: z.array(z.string()),
-  price: z.coerce.number().min(0.1),
-  expense: z.coerce.number().min(0.1),
+  price: z.coerce.number({ required_error: "Price is required" }).min(0.1),
+  expense: z.coerce.number({ required_error: "Expense is required" }).min(0.1),
 });
 
 interface ProductFormProps {
@@ -43,12 +47,13 @@ interface ProductFormProps {
 }
 
 const ProductForm: FC<ProductFormProps> = ({ initialData }) => {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [collections, setCollections] = useState<CollectionType[]>([]);
   const router = useRouter();
 
   const getCollections = async () => {
     try {
+      setLoading(true);
       const res = await fetch("/api/collections", {
         method: "GET",
       });
@@ -114,6 +119,7 @@ const ProductForm: FC<ProductFormProps> = ({ initialData }) => {
         window.location.href = "/products";
       } else {
         toast.error(`You don't have permission`);
+        setLoading(false);
       }
     } catch (error) {
       setLoading(false);
