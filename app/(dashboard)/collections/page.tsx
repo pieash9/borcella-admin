@@ -34,8 +34,8 @@ const CollectionsPage = () => {
   return loading ? (
     <Loader />
   ) : (
-    <div className="px-10 py-5">
-      <div className="flex items-center justify-between">
+    <div className="px-10 max-sm:px-4 py-5">
+      <div className="flex max-sm:flex-col max-sm:gap-2 md:items-center justify-between">
         <p className="text-heading2-bold">Collections</p>
         <Button
           className="bg-blue-1 text-white"

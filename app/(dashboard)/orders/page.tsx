@@ -28,7 +28,7 @@ const Orders = () => {
   return loading ? (
     <Loader />
   ) : (
-    <div className="px-10 py-5">
+    <div className="px-10 max-sm:px-4 py-5">
       <p className="text-heading2-bold">Orders</p>
       <Separator className="bg-grey-1 my-5" />
       <DataTable columns={orderColumns} data={orders} searchKey="_id" />
